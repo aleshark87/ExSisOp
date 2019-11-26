@@ -5,6 +5,7 @@
 #define numPRODb 5
 #define numCONS 10
 #define SLEEP_TIME 1
+#define NUMBUFFER 1
 
 /*library inclusion*/
 #include <unistd.h> 
@@ -18,72 +19,56 @@ uint64_t datoB = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condWaitA = PTHREAD_COND_INITIALIZER;
 pthread_cond_t condWaitB = PTHREAD_COND_INITIALIZER;
-pthread_cond_t condConsA = PTHREAD_COND_INITIALIZER;
-pthread_cond_t condConsB = PTHREAD_COND_INITIALIZER;
+pthread_cond_t condCons = PTHREAD_COND_INITIALIZER;
 pthread_cond_t aspettoBro = PTHREAD_COND_INITIALIZER;
-int bufferPienoA = 0;
-int bufferPienoB = 0;
-int glieLodicoio = 0;
+int bufferA = 0;
+int bufferB = 0;
 
 void* produttoreA(void *arg){
 	while(1){
+		sleep(1);
 		pthread_mutex_lock(& mutex);
-		if(bufferPienoA){
+		while(bufferA >= NUMBUFFER){
 			pthread_cond_wait(& condWaitA, & mutex);
 		}
-		sleep(1);
 		printf("PRODOTTO DATO A \n");
 		datoA++;
-		bufferPienoA = 1;
-		if(bufferPienoB == 0) {
-			 pthread_cond_wait(& aspettoBro, & mutex);
-		}
-		else {
-			pthread_cond_signal(& aspettoBro);
-		}
-		pthread_cond_signal(& condConsA); 
+		bufferA++;
+		pthread_cond_signal(&condCons);
 		pthread_mutex_unlock(& mutex);
 	}
 }
 
 void* produttoreB(void *arg){
 	while(1){
+		sleep(1);
 		pthread_mutex_lock(& mutex);
-		if(bufferPienoB){
+		while(bufferB >= NUMBUFFER){
 			pthread_cond_wait(& condWaitB, & mutex);
 		}
-		sleep(1);
 		printf("PRODOTTO DATO B \n");
 		datoB++;
-		bufferPienoB = 1;
-		if(bufferPienoA == 0) {
-			 pthread_cond_wait(& aspettoBro, & mutex);
-		}
-		else {
-			pthread_cond_signal(& aspettoBro);
-		}
-		pthread_cond_signal(& condConsB);
+		bufferB++ ;
+		pthread_cond_signal(&condCons);
 		pthread_mutex_unlock(& mutex);
 	}
 }
-/*IL MIO PROBLEMA ATTUALE E' CHE I THREAD DEVONO ESSERE SICRONIZZATI
- * PER MANDARE IL SEGNALE AL CONSUMATORE.
- * FARO' SI CHE ASPETTINO PRIMA IL COMPAGNO */
 
 void* consumatoreAB(void *arg){
 	while(1){
 		pthread_mutex_lock(& mutex);
-		pthread_cond_wait(&condConsA, & mutex);
-		pthread_cond_wait(&condConsB, & mutex);
-		sleep(1);
-		printf("CONSUMO DATO A e B \n");
+		while((bufferA <= 0) || (bufferB <= 0)){
+			pthread_cond_wait(&condCons, &mutex);
+		}
 		datoA--;
 		datoB--;
-		bufferPienoA = 0;
-		bufferPienoB = 0;
-		pthread_cond_signal(& condWaitA);
-		pthread_cond_signal(& condWaitB);
+		bufferA--;
+		bufferB--;
+		printf("CONSUMATO DATO A e B \n");
+		pthread_cond_signal(&condWaitA);
+		pthread_cond_signal(&condWaitB);
 		pthread_mutex_unlock(& mutex);
+		sleep(1);
 	}
 }
 
