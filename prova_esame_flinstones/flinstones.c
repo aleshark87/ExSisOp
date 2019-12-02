@@ -32,6 +32,7 @@ void* cavernicolo(void *arg){
 		indiceCav = * (int*) arg;
 		printf("sono cavernicolo %d \n",indiceCav);
 		pthread_mutex_lock(&mutex);
+		printf("lato din = %d ",latoDinosauro);
 		if(latoDinosauro == latoCavernicolo[indiceCav]){
 			cavLatoA++;
 			if(latoDinosauro == latoA) latoCavernicolo[indiceCav] = latoB;
@@ -39,20 +40,18 @@ void* cavernicolo(void *arg){
 			if(cavLatoA == 2){
 				printf("SIAMO IN DUE SVEGLIA DINOSAURO, io sono %d \n",indiceCav);
 				pthread_cond_signal(&svegliaDino);
-				
-				
 				for(i = 0; i < numCavernicoli; i++){
 					printf("lato %d = %d\n",i,latoCavernicolo[i]);
 				}
 			}
 			else{
+				printf("aspetto un altro cavernicolo per andare \n");
 				pthread_cond_wait(&aspetta,&mutex);
 			}
 		}
-		else{
-			pthread_cond_wait(&lato,&mutex);
-		}
+		
 		pthread_mutex_unlock(&mutex);
+		sleep(tempoGiretto);
 	}
 	
 }
@@ -65,13 +64,13 @@ void* dinosauro(void *arg){
 			pthread_cond_broadcast(&aspetta);
 			printf("SI PARTE \n");
 			sleep(tempoTrasporto);
-			pthread_cond_signal(&lato);
+			latoDinosauro = latoB;
 		}
 		if(latoDinosauro == latoB){
 			pthread_cond_wait(&svegliaDino, &mutex);
 			printf("SI PARTE \n");
 			sleep(tempoTrasporto);
-			pthread_cond_signal(&lato);
+			latoDinosauro = latoA;
 		}
 		pthread_mutex_unlock(&mutex);
 	}
