@@ -4,72 +4,63 @@
 #include <unistd.h>
 #include <string.h>
 
-#define latoA 0
-#define latoB 1 
+#define NUMPOSTI 2
+#define NUMCAVERNICOLI_A 2
+#define NUMCAVERNICOLI_B 1
 #define tempoTrasporto 2 
 #define tempoGiretto 4 
 #define numCavernicoli 3 
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t discesa = PTHREAD_COND_INITIALIZER;
-pthread_cond_t discesaFinita = PTHREAD_COND_INITIALIZER;
-pthread_cond_t salitaA = PTHREAD_COND_INITIALIZER;
-pthread_cond_t salitaB = PTHREAD_COND_INITIALIZER;
-pthread_cond_t salita2 = PTHREAD_COND_INITIALIZER;
-pthread_cond_t sync = PTHREAD_COND_INITIALIZER;
+pthread_cond_t condDinoArrivato = PTHREAD_COND_INITIALIZER;
+pthread_cond_t condPasseggeriScesi = PTHREAD_COND_INITIALIZER;
+pthread_cond_t condPasseggeriSaliti = PTHREAD_COND_INITIALIZER;
+pthread_cond_t condAttendiDinoLatoA = PTHREAD_COND_INITIALIZER;
+pthread_cond_t condAttendiDinoLatoB = PTHREAD_COND_INITIALIZER;
 
-int latoDinosauro = latoA;
-int latoCavernicolo[numCavernicoli] = {latoA, latoA, latoB};
-int cavSullaCoda = 0;
+int NumPostiLiberi=NUMPOSTI;
+int latoASalire=0,
+    latoBSalire=0;
 
 
 void* cavernicolo(void *arg){
+	char lato;
+	int indice;
+	indice = * (int*) arg;
+	if( indice<NUMCAVERNICOLI_A )	lato='A';
+	else 	lato='B';
 	while(1){
-		
-		int indiceCav;
-		indiceCav = * (int*) arg;
-		printf("sono cavernicolo %d \n",indiceCav);
 		pthread_mutex_lock(&mutex);
-		pthread_cond_wait(&sync,&mutex);
-		pthread_cond_signal(&discesaFinita);
-		/* Qui gestisco il caso in cui il dinosauro sia di là..
-		 * aspetterà la giusta richiesta di salire*/
-		if(latoDinosauro != latoCavernicolo[indiceCav]){
-			if(latoCavernicolo == latoA){
-				pthread_cond_wait(&salitaA,&mutex);
+		if(lato == 'A'){
+			while(latoASalire == 0 || NumPostiLiberi == 0){
+				pthread_cond_wait(&condAttendiDinoLatoA,&mutex);
 			}
-			else{
-				pthread_cond_wait(&salitaB,&mutex);
-			}
-		}
-		if(latoCavernicolo == latoA){
-			pthread_cond_wait(&salitaA,&mutex);
 		}
 		else{
-			pthread_cond_wait(&salitaB,&mutex);
+			while(latoBSalire == 0 || NumPostiLiberi == 0){
+				pthread_cond_wait(&condAttendiDinoLatoB,&mutex);
+			}
 		}
-		printf("cav %d SALGO \n",indiceCav);
+		printf("SALGO , cav numero %d\n",indice);
+		fflush(stdout);
 		
-		cavSullaCoda++;
-		if(cavSullaCoda == 2){
-			pthread_cond_broadcast(&salita2);
+		NumPostiLiberi--;
+		if(NumPostiLiberi == 0){
+			printf("DINOSAURO , PARTI !\n");
+			pthread_cond_signal(&condPasseggeriSaliti);
+		}
+		pthread_cond_wait(&condDinoArrivato,&mutex);
+		printf("SCENDO, cav numero %d\n",indice);
+		if(NumPostiLiberi == NUMPOSTI){
+			pthread_cond_signal(&condPasseggeriScesi);
+		}
+		/*cambio il lato*/
+		if(lato == 'A'){
+			lato = 'B';
 		}
 		else{
-			pthread_cond_wait(&salita2,&mutex);
+			lato = 'A';
 		}
-		if(latoCavernicolo[indiceCav] == latoA){
-			latoCavernicolo[indiceCav] = latoB;
-		}
-		else{
-			latoCavernicolo[indiceCav] = latoA;
-		}
-		/* gestione discesa */
-		pthread_cond_wait(&discesa,&mutex);
-		cavSullaCoda--;
-		if(cavSullaCoda != 0){
-			pthread_cond_wait(&discesaFinita,&mutex);
-		}
-		pthread_cond_broadcast(&discesaFinita);
 		pthread_mutex_unlock(&mutex);
 		sleep(tempoGiretto);
 	}
@@ -77,44 +68,42 @@ void* cavernicolo(void *arg){
 }
 
 void* dinosauro(void *arg){
+	char lato='A';
+	pthread_mutex_lock(&mutex);
 	while(1){
-		int i;
-		pthread_mutex_lock(&mutex);
-		/* prima di iniziare a far salire cavernicoli,
-		 * devo prima far scendere */
-		 /* SCENDETE ! */
-		printf("DOVETE SCENDERE !\n");
-		pthread_cond_broadcast(&discesa);
-		printf("ASPETTO CHE SIATE SCESI TUTTI\n");
-		pthread_cond_signal(&sync);
-		pthread_cond_wait(&discesaFinita,&mutex);
-		printf("INIZIO LA PROCEDURA PER TRAGHETTARVI\n");
-		printf("%d\n",latoDinosauro);
-		if(latoDinosauro == latoA){
-			printf("DOVETE SALIRE !\n");
-			pthread_cond_broadcast(&salitaA);
-			printf("ASPETTO CHE SALIATE IN DUE DA A\n");
-			for(i = 0; i <  numCavernicoli; i++){
-				printf("cav %d = %d\n",i,latoCavernicolo[i]);
-			}
-			pthread_cond_wait(&salita2,&mutex);
-			printf("ORA SISTEMO LE VARIABILI E LASCIO LA MUTEX\n");
-			latoDinosauro = latoB;
-			printf("%d\n",latoDinosauro);
-			/* la variabile latoCavernicolo, cavSullaCoda vanno sistemate
-			 * in base all'indice nella procedura relativa.*/
-			 pthread_mutex_unlock(&mutex);
+		/* Il dinosauro vuole ripartire: 
+		 * avvisa di salire i cavernicoli
+		 * dal lato giusto */
+		printf("voglio ripartire.. lato %c \n",lato);
+		fflush(stdout);
+		if(lato == 'A'){
+			latoASalire = 1;
+			pthread_cond_broadcast(&condAttendiDinoLatoA);
 		}
-		if(latoDinosauro == latoB){
-			printf("DOVETE SALIRE !\n");
-			pthread_cond_broadcast(&salitaB);
-			printf("ASPETTO CHE SALIATE IN DUE DA B\n");
-			pthread_cond_wait(&salita2,&mutex);
-			printf("ORA SISTEMO LE VARIABILI E LASCIO LA MUTEX\n");
-			latoDinosauro = latoA;
-			pthread_mutex_unlock(&mutex);
+		else{
+			latoBSalire = 1;
+			pthread_cond_broadcast(&condAttendiDinoLatoB);
 		}
+		NumPostiLiberi = NUMPOSTI;
+		printf("SALITE \n");
+		fflush(stdout);
+		pthread_cond_wait(&condPasseggeriSaliti,&mutex);
+		latoASalire = 0;
+		latoBSalire = 0;
+		printf(" PARTO DA LATO %c\n",lato);
+		fflush(stdout);
+		pthread_mutex_unlock(&mutex);
 		sleep(tempoTrasporto);
+		if(lato == 'A') lato = 'B';
+		else lato = 'A';
+		pthread_mutex_lock(&mutex);
+		printf(" ARRIVATO SU LATO %c\n",lato);
+		fflush(stdout);
+		printf(" SONO ARRIVATO \n");
+		pthread_cond_wait(&condDinoArrivato,&mutex);
+		printf(" SCENDETE \n");
+		fflush(stdout);
+		pthread_cond_wait(&condPasseggeriScesi,&mutex);
 	}
 	
 }
