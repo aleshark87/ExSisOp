@@ -1,5 +1,5 @@
 #define POSTIBANCONE 2
-#define NUMCLIENTI 10
+#define NUMCLIENTI 3
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -19,6 +19,7 @@ pthread_cond_t inDue = PTHREAD_COND_INITIALIZER;
 void* cliente(void* arg){
 	int indice; int biglietto;
 	indice = * (int*) arg;
+	indice++;
 	while(1){
 		pthread_mutex_lock(&mutexDistributore);
 		biglietto = bigliettoGlobale;
@@ -26,18 +27,29 @@ void* cliente(void* arg){
 		bigliettoGlobale++;
 		pthread_mutex_unlock(&mutexDistributore);
 		pthread_mutex_lock(&mutexTurno);
-		printf("bigliettoDisplay %d \n", bigliettoSulDisplay);
-		while((bigliettoSulDisplay != biglietto) || (alloScaffale >= POSTIBANCONE)){
-			printf("sono cliente %d, e aspetto. \n", indice);
+		while(bigliettoSulDisplay != biglietto){
 			pthread_cond_wait(&cond, &mutexTurno);
-			printf("sono cliente %d, e mi sono risvegliato \n", indice);
 		}
 		alloScaffale++;
+		/* Se c'è posto per un altro, chiamo la broadcast per vedere
+		 * chi è di turno!! Ovviamente, bisogna incrementare anche il
+		 * biglietto. Altrimenti non ci sarebbe nessuno di turno */
+		if(alloScaffale < POSTIBANCONE){
+			printf("**CLIENTE %d**CHIAMO QUALCUN ALTRO \n", indice);
+			bigliettoSulDisplay++;
+			pthread_cond_broadcast(&cond);
+		}
+		pthread_mutex_unlock(&mutexTurno);
 		printf("sono cliente %d e mi servo !, allo scaffale %d\n", indice, alloScaffale);
 		sleep(3);
+		pthread_mutex_lock(&mutexTurno);
+		/* Questo if è molto importante.  */
+		if(alloScaffale == POSTIBANCONE){
+			printf("**CLIENTE %d**, PRIMA di increment, bigSulDispl %d \n",indice, bigliettoSulDisplay);
+			bigliettoSulDisplay++;
+			pthread_cond_broadcast(&cond);
+		}
 		alloScaffale--;
-		bigliettoSulDisplay++;
-		pthread_cond_broadcast(&cond);
 		pthread_mutex_unlock(&mutexTurno);
 	}
 }

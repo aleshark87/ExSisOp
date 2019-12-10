@@ -17,9 +17,14 @@
 uint64_t datoA = 0;
 uint64_t datoB = 0; 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t prelievoA = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t prelievoB= PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t depositoB = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t depositoA = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condWaitA = PTHREAD_COND_INITIALIZER;
 pthread_cond_t condWaitB = PTHREAD_COND_INITIALIZER;
 pthread_cond_t condCons = PTHREAD_COND_INITIALIZER;
+pthread_cond_t aspettoBro = PTHREAD_COND_INITIALIZER;
 int bufferA = 0;
 int bufferB = 0;
 
@@ -30,11 +35,13 @@ void* produttoreA(void *arg){
 		while(bufferA >= NUMBUFFER){
 			pthread_cond_wait(& condWaitA, & mutex);
 		}
+		pthread_mutex_unlock(&mutex);
+		pthread_mutex_lock(&depositoA);
 		printf("PRODOTTO DATO A \n");
 		datoA++;
 		bufferA++;
 		pthread_cond_signal(&condCons);
-		pthread_mutex_unlock(& mutex);
+		pthread_mutex_unlock(&depositoA);
 	}
 }
 
@@ -45,11 +52,13 @@ void* produttoreB(void *arg){
 		while(bufferB >= NUMBUFFER){
 			pthread_cond_wait(& condWaitB, & mutex);
 		}
+		pthread_mutex_unlock(&mutex);
+		pthread_mutex_lock(&depositoB);
 		printf("PRODOTTO DATO B \n");
 		datoB++;
 		bufferB++ ;
 		pthread_cond_signal(&condCons);
-		pthread_mutex_unlock(& mutex);
+		pthread_mutex_unlock(&depositoA);
 	}
 }
 
@@ -59,14 +68,18 @@ void* consumatoreAB(void *arg){
 		while((bufferA <= 0) || (bufferB <= 0)){
 			pthread_cond_wait(&condCons, &mutex);
 		}
-		datoA--;
-		datoB--;
-		bufferA--;
-		bufferB--;
+		pthread_mutex_unlock(& mutex);
+		pthread_mutex_lock(&prelievoA);
+		datoA--; bufferA--;
+		pthread_mutex_unlock(&prelievoA);
+		pthread_mutex_lock(&prelievoB);
+		datoB--; bufferB--;
+		pthread_mutex_unlock(&prelievoB);
+		pthread_mutex_lock(&mutex);
 		printf("CONSUMATO DATO A e B \n");
 		pthread_cond_signal(&condWaitA);
 		pthread_cond_signal(&condWaitB);
-		pthread_mutex_unlock(& mutex);
+		pthread_mutex_unlock(&mutex);
 		sleep(1);
 	}
 }

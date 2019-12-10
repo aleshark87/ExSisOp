@@ -1,26 +1,19 @@
-CFLAGS=-ansi -Wpedantic -Wall -D_THREAD_SAFE -D_POSIX_C_SOURCE=210112L
-LFLAGS=-lpthread
-TARGET=merda.exe
-OBJECTS=merda.o
-
+CFLAGS= -ansi -Wpedantic -Wall -D_REENTRANT -D_THREAD_SAFE -D_POSIX_C_SOURCE=200112L
+LFLAGS= -lpthread
+TARGET=arzigogolo.exe 
+OBJECTS= arzigogolo.o
 
 all:	${TARGET}
 
-${TARGET}:	${OBJECTS} 
-			gcc ${CFLAGS} -o ${TARGET} ${OBJECTS} ${LFLAGS}
+arzigogolo.exe:	arzigogolo.o 
+			gcc ${CFLAGS} -o ${TARGET} arzigogolo.o  ${LFLAGS}
 
-merda.o:	merda.c	
-				gcc -c merda.c ${CFLAGS} -o merda.o
+${OBJECTS}:	arzigogolo.c	
+		gcc -c arzigogolo.c ${CFLAGS} -o arzigogolo.o
 		
-.PHONY:	clean
+.PHONY: clean
 
 clean:
-		-rm ${TARGET} ${OBJECTS} 
-		
-
- 
-
- 
- 
+		-rm ${TARGET} ${OBJECTS}
  
  
