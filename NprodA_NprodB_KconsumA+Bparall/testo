@@ -1,0 +1,19 @@
+Un programma e’ composto da tre tipi di thread, i ProduttoriA, i ProduttoriB ed i
+Consumatori. Esistono N>0 ProduttoriA, M>0 ProduttoriB, e K Consumatori.
+Tutti i tre tipi di thread eseguono un loop infinito, durante il quale i ProduttoriA
+costruiscono un dato di tipo A (intero uint64_t), i ProduttoriB costruiscono un dato di
+tipo B (intero uint64_t) mentre i Consumatori vogliono un dato A assieme a un dato B.
+Lo scambio dei dati prodotti avviene per tramite di 1 buffer per i dati A e di 1 buffer per
+i dati B. Ciascun deposito dura 1 secondo, il prelievo in contemporanea dai due buffer
+dura 1 secondo. Prelievo e Deposito avvengono in un tempo NON infinitesimo,
+occorre eseguire i DEPOSITI di A e B possibilmente in parallelo tra loro, per
+risparmiare tempo, non in sequenza.
+Ciascun Consumatore, per svolgere il suo compito, deve prelevare nello stesso
+momento, un dato A dal buffer A ed un dato B dal buffer B.
+Implementare il programma, creando 3 thread ProduttoriA, 5 thread ProduttoriB, e 10
+thread Consumatori, implementando le necessarie sincronizzazioni.
+I produttori impiegano 1 secondo a produrre il dato ed i consumatori impiegano 1
+secondo per consumarlo dopo averlo prelevato dal buffer.
+Prendere come base il codice dell'esempio NProdMCons1buffer.c ed estenderlo
+opportunamente.
+ 

@@ -1,0 +1,10 @@
+Come nell’esercizio precedente, ma usando una variabile pthread_mutex diversa per
+ciascuna banca.
+La BancaDiItalia dovrà ottenere la mutua esclusione su tutte e tre le mutex prima di
+poter svolgere le proprie operazioni di somma.
+Iniziate l'esercizio scrivendo il Makefile.
+Confrontare il numero di operazioni bancarie totali che si riescono a effettuare in 2
+minuti, nei due esercizi (questo ed i precedente).
+Verificare se ci sono differenze sostanziali.
+Chiedersi perchè ci sono differenze.
+ 

@@ -1,0 +1,15 @@
+Esercizio 0: es0_premortem.c
+
+Il main è il primo thread, ha indice 0, aspetta 1000 microsecondi, crea un thread figlio
+passandogli (anche) il valore dell'indice incrementato di uno, e poi termina.
+
+Ciascun altro thread deve: stampare il proprio indice, aspettare 1000 microsecondi,
+creare un altro thread passandogli (anche) il valore dell'indice incrementato di uno,
+aspettare che il thread che lo ha creato termini, e infine terminare esso stesso.
+
+I thread non possono usare variabili globali per passarsi informazioni.
+Se necessario, i thread possono passare al loro figlio anche altre informazioni.
+Usare la funzione usleep() per realizzare l'attesa richiesta.
+
+Iniziate l'esercizio scrivendo il Makefile.
+ 

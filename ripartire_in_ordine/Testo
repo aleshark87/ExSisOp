@@ -1,0 +1,10 @@
+Utilizzare wget per scaricare l’esempio :
+http://www.cs.unibo.it/~ghini/didattica/sistemioperativi/PTHREAD/MUTEX_CONDVAR/C
+ondVarSignal.c
+Modificare l'esempio in modo che:
+i 5 thread si fermino tutti nella funzione SynchPoint (punto di sincronizzazione) e,
+una volta che sono tutti arrivati, ripartano ed escano nell'ordine in cui si sono fermati.
+Suggerimento:
+prima di incrementare il contatore synch_count, che conta il numero di thread entrati
+nella funzione SynchPoint, ciascun thread salva quel valore in una sua variabile locale.
+Quel valore salvato è il turno di uscita dei thread .......

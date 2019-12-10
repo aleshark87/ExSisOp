@@ -1,0 +1,12 @@
+Un programma e’ composto da tre thread T1 T2 e T3, creati da un main. Ciascuno dei
+tre thread itera all’infinito eseguendo una propria sequenza di operazioni Op1 Op2 e
+Op3. La sincronizzazione tra i thread deve ottenere che le operazioni dei tre thread
+eseguano in modo alternato, prima tutta Op1, poi tutta Op2, poi tutta Op3, poi ancora
+tutta Op1 e poi tutta Op2 e poi tutta Op3 e cosi' all'infinito. Chiariamo il concetto:
+La prima iterazione deve essere svolta dal thread T1.
+Al termine di ciascuna propria iterazione il thread T1 passa il controllo al thread T2 e si
+mette in attesa che il thread T3 gli restituisca il controllo. Quando ottiene il controllo da
+T1, il thread T2 esegue una iterazione e poi passa il controllo al thread T3. Quando
+ottiene il controllo da T2, il thread T3 esegue una iterazione e poi passa il controllo al
+thread T1 Quando ottiene il controllo, il thread T1 esegue una altra iterazione e poi
+passa nuovamente il controllo al thread T2. E cosi' via all'infinito

@@ -1,0 +1,22 @@
+Esercizio 7: fornaio con biglietto e scaffale a doppio accesso es7_fornaio2
+ 
+Ad un fornaio non piace stare al bancone a servire i clienti, perciò i clienti si
+servono da soli, accedendo ad uno scaffale con le ceste del pane, in cui però c'è
+posto al massimo per due clienti insieme alla volta.
+
+ Inoltre al fornaio piace l'ordine, quindi i clienti entrando nel negozio prendono
+un biglietto con un numero intero sequenziale crescente, e accedono allo
+scaffale nell'ordine stabilito dal numero del loro biglietto.
+
+Prima di accedere al bancone del pane, perciò, ciascun cliente prende il biglietto
+contenente un numero che stabilisce il suo turno ed aspetta il suo turno.
+
+Un display indica il numero del prossimo cliente che può accedere allo scaffale.
+Attenti a quando
+ e
+ come
+ incrementare
+ la
+ variabile
+ globale
+bigliettoSulDisplay.

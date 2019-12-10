@@ -1,0 +1,29 @@
+Pthread – Programmazione Concorrente
+Esercizio 1: es1_banche
+ mutua esclusione semplice
+ 
+Un programma su un server gestisce le operazioni di cassa su 3 diverse banche
+chiamate B1, B2 e B3.
+Per ciascuna banca Bj esiste una variabile globale Tj che
+contiene il totale del denaro posseduto dalla banca Bj.
+Per ciascuna banca Bj esiste una variabile globale Nj che contiene il numero di operazioni (depositi e prelievi) fatte della
+banca Bj.
+Per ciascuna banca esistono 5 pthread Depositi e 4 pthread Prelievi.
+
+Ciascuno di questi pthread esegue un loop. Il loop e’ composto da una parte iniziale
+fuori dalla mutua esclusione e da una sezione critica in mutua esclusione.
+
+La parte iniziale fuori dalla mutua esclusione realizza l’attesa di 1 secondo. Nella parte
+di sezione critica si modifica il totale della banca di +10 per i Depositi e di -9 per i
+Prelievi. Prima di uscire dalla sezione critica si deve attendere 1/10 di secondo.
+Esiste poi un thread BancaDiItalia che esegue un loop in cui cerca di stampare a video
+la somma dei totali delle 3 banche e la somma del numero di operazioni eseguite. Per
+fare le somme occorre che nessun Deposito e nessun Prelievo stia eseguendo la propria
+sezione critica. Dopo avere stampato il necessario, il thread BancaDiItalia aspetta 1 sec.
+poi esce dalla mutua esclusione e attende 30 secondi prima di ricominciare il loop.
+Implementare il tutto usando una sola variabile di tipo pthread_mutex_t. Non si
+possono usare variabili di tipo pthread_cond_t. Iniziare scrivere il Makefile
+Suggerimento: partire dall’esempio mutex.c ed usare un vettore di 3 variabili T ed
+un vettore di 3 variabili N. Passare a ciascun thread Depositi e Prelievi l’indice della
+banca a cui si riferisce.
+ 
