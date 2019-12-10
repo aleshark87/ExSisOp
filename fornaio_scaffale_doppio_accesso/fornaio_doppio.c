@@ -1,5 +1,5 @@
 #define POSTIBANCONE 2
-#define NUMCLIENTI 3
+#define NUMCLIENTI 10
 
 #include <pthread.h>
 #include <stdlib.h>
@@ -28,11 +28,13 @@ void* cliente(void* arg){
 		pthread_mutex_lock(&mutexTurno);
 		printf("bigliettoDisplay %d \n", bigliettoSulDisplay);
 		while((bigliettoSulDisplay != biglietto) || (alloScaffale >= POSTIBANCONE)){
+			printf("sono cliente %d, e aspetto. \n", indice);
 			pthread_cond_wait(&cond, &mutexTurno);
+			printf("sono cliente %d, e mi sono risvegliato \n", indice);
 		}
 		alloScaffale++;
-		printf("sono cliente %d e mi servo !, alloscaffale %d\n", indice, alloScaffale);
-		sleep(5);
+		printf("sono cliente %d e mi servo !, allo scaffale %d\n", indice, alloScaffale);
+		sleep(3);
 		alloScaffale--;
 		bigliettoSulDisplay++;
 		pthread_cond_broadcast(&cond);
