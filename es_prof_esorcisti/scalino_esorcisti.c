@@ -26,6 +26,7 @@ void* professore(void* arg){
 		printf("mi curano \n");
 		sleep(2);
 		aiutantiArrivati = 0; pthread_cond_broadcast(&fineIntervento);
+		stoBene = 1;
 		pthread_mutex_unlock(&mutex);
 		printf("FACCIO LEZIONE \n");
 		sleep(4);
@@ -43,6 +44,7 @@ void* medico(void* arg){
 		if(aiutantiArrivati == 2){
 			pthread_cond_signal(&cond2);
 		}
+		printf("sono medico MUHAHAHAHHA \n");
 		pthread_cond_wait(&fineIntervento, &mutex);
 		pthread_mutex_unlock(&mutex);
 	}
@@ -59,6 +61,7 @@ void* esorcista(void* arg){
 		if(aiutantiArrivati == 2){
 			pthread_cond_signal(&cond2);
 		}
+		printf("sono esorcista AHAHAHAHAHAHHA \n");
 		pthread_cond_wait(&fineIntervento, &mutex);
 		pthread_mutex_unlock(&mutex);
 	}
