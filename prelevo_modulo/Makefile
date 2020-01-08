@@ -1,19 +1,24 @@
 CFLAGS=-ansi -Wpedantic -Wall -Werror -D_THREAD_SAFE -D_POSIX_C_SOURCE=200112L
 LFLAGS=-lpthread
-TARGET=flinstone.exe 
-OBJECTS= flinstone.o
+TARGET=prelievo.exe 
+OBJECTS= prelievo.o
 
 
 all:	${TARGET}
 
-${TARGET}:	flinstone.o 
+${TARGET}:	prelievo.o 
 			gcc ${CFLAGS} -o ${TARGET} ${OBJECTS}  ${LFLAGS}
 
-${OBJECTS}: flinstone.c	
-		gcc -c flinstone.c ${CFLAGS} -o ${OBJECTS}
+${OBJECTS}: prelievo.c	
+		gcc -c prelievo.c ${CFLAGS} -o ${OBJECTS}
 		
 .PHONY: clean
 
 clean:
 		-rm ${TARGET} ${OBJECTS}
+ 
+ 
+ 
+ 
+ 
  

@@ -7,9 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 
-pthread_mutex_t mutexS1 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexS2 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutexS3 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t s1Libero = PTHREAD_COND_INITIALIZER;
 pthread_cond_t s2Libero = PTHREAD_COND_INITIALIZER;
 pthread_cond_t s3Libero = PTHREAD_COND_INITIALIZER;
@@ -18,200 +16,169 @@ int s1[NUMS1];
 int s2[NUMS2];
 int s3[NUMS3];
 
-int s1liberi(){
+/* Ritorna 1 se trova uno strumento S1 libero, altrimenti ritorna -1 */
+int cerco_prendoS1(){
 	int indice;
-	pthread_mutex_lock(&mutexS1);
 	for(indice = 0; indice < NUMS1; indice++){
 		if(s1[indice] == 1){
-			pthread_mutex_unlock(&mutexS1);
+			/*Ho trovato uno strumento 1 libero..*/
+			s1[indice] = 0; /*lo prendo*/
 			return indice;
 		}
 	}
-	pthread_mutex_unlock(&mutexS1);
 	return -1;
-}
+} 
 
-int s2liberi(){
+int cerco_prendoS2(){
 	int indice;
-	pthread_mutex_lock(&mutexS2);
 	for(indice = 0; indice < NUMS2; indice++){
 		if(s2[indice] == 1){
-			pthread_mutex_unlock(&mutexS2);
+			/*Ho trovato uno strumento 1 libero..*/
+			s2[indice] = 0; /*lo prendo*/
 			return indice;
 		}
 	}
-	pthread_mutex_unlock(&mutexS2);
 	return -1;
-}
-
-int s3liberi(){
+} 
+int cerco_prendoS3(){
 	int indice;
-	pthread_mutex_lock(&mutexS3);
 	for(indice = 0; indice < NUMS3; indice++){
 		if(s3[indice] == 1){
-			pthread_mutex_unlock(&mutexS3);
+			/*Ho trovato uno strumento 1 libero..*/
+			s3[indice] = 0; /*lo prendo*/
 			return indice;
 		}
 	}
-	pthread_mutex_unlock(&mutexS3);
 	return -1;
+} 
+
+void restituisco_S1(int indice){
+	int i;
+	for(i = 0; i < NUMS1; i++){
+		if(i == indice){
+			/*lo strumento è nuovamente disponibile*/
+			s1[indice] = 1;
+			printf("BROADCAST S1 \n");
+			pthread_cond_broadcast(&s1Libero);
+			return;
+		}
+	}
+	printf("ERROR \n");
+}
+void restituisco_S2(int indice){
+	int i;
+	for(i = 0; i < NUMS2; i++){
+		if(i == indice){
+			/*lo strumento è nuovamente disponibile*/
+			s2[indice] = 1;
+			pthread_cond_broadcast(&s2Libero);
+			return;
+		}
+	}
+	printf("ERROR \n");
+}
+void restituisco_S3(int indice){
+	int i;
+	for(i = 0; i < NUMS3; i++){
+		if(i == indice){
+			/*lo strumento è nuovamente disponibile*/
+			s3[indice] = 1;
+			pthread_cond_broadcast(&s3Libero);
+			return;
+		}
+	}
+	printf("ERROR \n");
+}
+
+void superStampa(){
+	int indice;
+	for(indice = 0; indice < 2 ; indice++){
+		printf("*******************************************************\n");
+		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+		printf("⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞⅞\n");
+	}
 }
 
 void* lavorazione1(void* arg){
-	int indiceS1; int indiceS2; int indiceS3;
+	int indiceS1; int indiceS2; int indiceS3; int indiceLavorazione = *(int*) arg;
+	int numLavorazione = 0;
 	while(1){
-		printf("inizio lavorazione 1... \n");
-		printf("prendo gli strumenti necessari.\n");
-		indiceS1 = s1liberi();
-		if(indiceS1 != -1){
-			pthread_mutex_lock(&mutexS1);
-			s1[indiceS1] = 0;
-			pthread_mutex_unlock(&mutexS1);
+		numLavorazione++;
+		pthread_mutex_lock(&mutex);
+		printf("Sono L1[%d], chiedo gli strumenti \n", indiceLavorazione);
+		/* QUESTO SECONDO ME PUÒ ESSERE UN GRANDE CICLO WHILE */
+		indiceS1 = cerco_prendoS1();
+		while(indiceS1 == -1){
+			pthread_cond_wait(&s1Libero, &mutex);
+			indiceS1 = cerco_prendoS1();
 		}
-		else {
-			printf("aspetto che si liberi un s1 [L1]\n ");
-			pthread_mutex_lock(&mutexS1);
-			pthread_cond_wait(&s1Libero, &mutexS1);
-			pthread_mutex_unlock(&mutexS1);
-			indiceS1 = s1liberi();
-			pthread_mutex_lock(&mutexS1);
-			s1[indiceS1] = 0;
-			pthread_mutex_unlock(&mutexS1);
+		/*printf("L1 ho lo strumento s1[%d] \n", indiceS1 );*/
+		indiceS2 = cerco_prendoS2();
+		while(indiceS2 == -1){
+			pthread_cond_wait(&s2Libero, &mutex);
+			indiceS2 = cerco_prendoS2();
 		}
-		printf("ho lo strumento s1[%d] \n", indiceS1);
-		printf("INIZIO LAVORAZIONE 1 \n");
-		sleep(1);
-		indiceS2 = s2liberi();
-		if(indiceS2 != -1){
-			pthread_mutex_lock(&mutexS2);
-			s2[indiceS2] = 0;
-			pthread_mutex_unlock(&mutexS2);
+		/*printf("L1 ho lo strumento s2[%d] \n", indiceS2 );*/
+		indiceS3 = cerco_prendoS3();
+		while(indiceS3 == -1){
+			pthread_cond_wait(&s3Libero, &mutex);
+			indiceS3 = cerco_prendoS3();
 		}
-		else {
-			printf("aspetto che si liberi un s2 \n");
-			pthread_cond_wait(&s2Libero, &mutexS2);
-			pthread_mutex_unlock(&mutexS2);
-			indiceS2 = s2liberi();
-			pthread_mutex_lock(&mutexS2);
-			s2[indiceS2] = 0;
-			pthread_mutex_unlock(&mutexS2);
-		}
-		printf("ho lo strumento s2[%d] \n", indiceS2);
-		printf("CONTINUO LAVORAZIONE 1\n");
-		sleep(2);
-		printf("ora rilascio lo strumento s2[%d].. \n", indiceS2);
-		pthread_mutex_lock(&mutexS2);
-		s2[indiceS2] = 1; pthread_cond_signal(&s2Libero);
-		pthread_mutex_unlock(&mutexS2);
-		indiceS3 = s3liberi();
-		if(indiceS3 != -1){
-			pthread_mutex_lock(&mutexS3);
-			s3[indiceS3] = 0; /* LO USO */
-			pthread_mutex_unlock(&mutexS3);
-		}
-		else {
-			printf("aspetto che si liberi un s3 \n");
-			pthread_cond_wait(&s3Libero, &mutexS3);
-			pthread_mutex_unlock(&mutexS3);
-			indiceS3 = s3liberi();
-			pthread_mutex_lock(&mutexS3);
-			s3[indiceS3] = 0; /* LO USO */
-			pthread_mutex_unlock(&mutexS3);
-		}
-		printf("ho lo strumento s3[%d] \n", indiceS3);
-		printf("CONTINUO LAVORAZIONE 1\n");
-		sleep(2);
-		printf("LAVORAZIONE 1 FINITA, RILASCIO GLI STRUMENTI S1 e S3 \n");
-		pthread_mutex_lock(&mutexS3); 
-		s3[indiceS3] = 1; pthread_cond_signal(&s3Libero);
-		pthread_mutex_unlock(&mutexS3);
-		pthread_mutex_lock(&mutexS1);
-		s1[indiceS1] = 1; pthread_cond_broadcast(&s1Libero);
-		pthread_mutex_unlock(&mutexS1);
-		printf("ASPETTO 3 SECONDI PRIMA DI REINIZIARE \n");
-		sleep(3);
+		/*printf("L1 ho lo strumento s3[%d] \n", indiceS3 );*/
+		pthread_mutex_unlock(&mutex);
+		printf("L1 ora possiamo iniziare a lavorare \n");
+		sleep(10);
+		printf("L1 ora dobbiamo restituire gli strumenti \n");
+		pthread_mutex_lock(&mutex);
+		restituisco_S1(indiceS1); restituisco_S2(indiceS2); restituisco_S3(indiceS3);
+		pthread_mutex_unlock(&mutex);
+		superStampa();
+		printf("L1[%d] Numero Lavorazione %d \n", indiceLavorazione, numLavorazione);
+		superStampa();
 	}
-}
+}	
 
 void* lavorazione2(void* arg){
-	int indiceS1; int indiceS2; int indiceS3;
+	int indiceS1; int indiceS2; int indiceS3; int indiceLavorazione = * (int*) arg;
+	int numLavorazioni = 0; 
 	while(1){
-		printf("inizio lavorazione 2.. \n");
-		printf("prendo gli strumenti necessari \n");
-		indiceS3 = s3liberi();
-		if(indiceS3 != -1){
-			pthread_mutex_lock(&mutexS3);
-			s3[indiceS3] = 0; /* LO USO */
-			pthread_mutex_unlock(&mutexS3);
+		numLavorazioni += 1;
+		pthread_mutex_lock(&mutex);
+		indiceS1 = cerco_prendoS1();
+		while(indiceS1 == -1){
+			printf("Sono l2[%d] non ho trovato strumenti 1. Vado in wait. \n", indiceLavorazione);
+			fflush(stdout);
+			pthread_cond_wait(&s1Libero, &mutex);
+			indiceS1 = cerco_prendoS1();
 		}
-		else {
-			printf("aspetto che si liberi un s3 \n");
-			pthread_cond_wait(&s3Libero, &mutexS3);
-			pthread_mutex_unlock(&mutexS3);
-			indiceS3 = s3liberi();
-			pthread_mutex_lock(&mutexS3);
-			s3[indiceS3] = 0; /* LO USO */
-			pthread_mutex_unlock(&mutexS3);
+		printf("Sono l2[%d] ho lo strumento s1[%d] \n", indiceLavorazione, indiceS1 );
+		indiceS2 = cerco_prendoS2();
+		while(indiceS2 == -1){
+			pthread_cond_wait(&s2Libero, &mutex);
+			indiceS2 = cerco_prendoS2();
 		}
-		printf("ho lo strumento s3[%d] \n", indiceS3);
-		printf("INIZIO LAVORAZIONE 2 \n");
-		sleep(1);
-		indiceS2 = s2liberi();
-		if(indiceS2 != -1){
-			pthread_mutex_lock(&mutexS2);
-			s2[indiceS2] = 0;
-			pthread_mutex_unlock(&mutexS2);
+		printf("Sono l2[%d] ho lo strumento s2[%d] \n",indiceLavorazione, indiceS2 );
+		indiceS3 = cerco_prendoS3();
+		while(indiceS3 == -1){
+			pthread_cond_wait(&s3Libero, &mutex);
+			indiceS3 = cerco_prendoS3();
 		}
-		else {
-			printf("aspetto che si liberi un s2 \n");
-			pthread_cond_wait(&s2Libero, &mutexS2);
-			pthread_mutex_unlock(&mutexS2);
-			indiceS2 = s2liberi();
-			pthread_mutex_lock(&mutexS2);
-			s2[indiceS2] = 0;
-			pthread_mutex_unlock(&mutexS2);
-		}
-		printf("ho lo strumento s2[%d] \n", indiceS2);
-		printf("CONTINUO LAVORAZIONE 2\n");
-		sleep(2);
-		printf("ora rilascio lo strumento s2[%d].. \n", indiceS2);
-		pthread_mutex_lock(&mutexS2);
-		s2[indiceS2] = 1; pthread_cond_signal(&s2Libero);
-		pthread_mutex_unlock(&mutexS2);
-		indiceS1 = s1liberi();
-		if(indiceS1 != -1){
-			pthread_mutex_lock(&mutexS1);
-			s1[indiceS1] = 0;
-			pthread_mutex_unlock(&mutexS1);
-		}
-		else {
-			printf("aspetto che si liberi un s1 \n ");
-			pthread_mutex_lock(&mutexS1);
-			pthread_cond_wait(&s1Libero, &mutexS1);
-			pthread_mutex_unlock(&mutexS1);
-			indiceS1 = s1liberi();
-			pthread_mutex_lock(&mutexS1);
-			s1[indiceS1] = 0;
-			pthread_mutex_unlock(&mutexS1);
-		}
-		printf("ho lo strumento s1[%d] \n", indiceS1);
-		printf("CONTINUO LAVORAZIONE 2 \n");
-		sleep(1);
-		printf("FINE LAVORAZIONE 2 \n");
-		printf("ora rilascio strumento s1 e s3 \n");
-		pthread_mutex_lock(&mutexS1);
-		s1[indiceS1] = 1; pthread_cond_signal(&s1Libero);
-		pthread_mutex_unlock(&mutexS1);
-		pthread_mutex_lock(&mutexS3);
-		s3[indiceS3] = 1; pthread_cond_signal(&s3Libero);
-		pthread_mutex_unlock(&mutexS3);
-		printf("ASPETTO 3 SECONDI PRIMA DI REINIZIARE \n");
-		sleep(3);
+		printf("L2[%d] ho lo strumento s3[%d] ", indiceLavorazione, indiceS3 );
+		printf("Sono L2[%d] INIZIO A LAVORARE.. \n", indiceLavorazione);
+		pthread_mutex_unlock(&mutex);
+		sleep(8);
+		superStampa();
+		printf("L2[%d] FINITO IL MIO LAVORO[%d] \n", indiceLavorazione, numLavorazioni);
+		superStampa();
+		pthread_mutex_lock(&mutex);
+		restituisco_S1(indiceS1); restituisco_S2(indiceS2); restituisco_S3(indiceS3);
+		pthread_mutex_unlock(&mutex);
+		
 	}
-}
+}	
 
 int main(void){
-	int indice; pthread_t tid1[2]; pthread_t tid2[2];
+	int indice; pthread_t tid1[2];  int *p;
 	for(indice = 0; indice < NUMS1; indice++){
 		s1[indice] = 1;
 	}
@@ -222,9 +189,11 @@ int main(void){
 		s3[indice] = 1;
 	}
 	for(indice = 0; indice < 2; indice++){
-		pthread_create(&tid1[indice], NULL, lavorazione1, NULL);
+		p = malloc(sizeof(int)); *p = indice;
+		pthread_create(&tid1[indice], NULL, lavorazione1, (void*)p);
 		sleep(1);
-		pthread_create(&tid2[indice], NULL, lavorazione2, NULL);
+		pthread_create(&tid1[indice], NULL, lavorazione2, (void*)p);
+		
 	}
 	pthread_exit(NULL);
 }

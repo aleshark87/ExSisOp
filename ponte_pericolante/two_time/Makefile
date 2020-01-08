@@ -1,19 +1,20 @@
 CFLAGS=-ansi -Wpedantic -Wall -Werror -D_THREAD_SAFE -D_POSIX_C_SOURCE=200112L
 LFLAGS=-lpthread
-TARGET=flinstone.exe 
-OBJECTS= flinstone.o
+TARGET=bridge.exe 
+OBJECTS= bridge.o
 
 
 all:	${TARGET}
 
-${TARGET}:	flinstone.o 
+${TARGET}:	bridge.o 
 			gcc ${CFLAGS} -o ${TARGET} ${OBJECTS}  ${LFLAGS}
 
-${OBJECTS}: flinstone.c	
-		gcc -c flinstone.c ${CFLAGS} -o ${OBJECTS}
+${OBJECTS}: bridge.c	
+		gcc -c bridge.c ${CFLAGS} -o ${OBJECTS}
 		
 .PHONY: clean
 
 clean:
 		-rm ${TARGET} ${OBJECTS}
+ 
  
