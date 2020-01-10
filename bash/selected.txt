@@ -1,0 +1,16 @@
+#ifdef __USE_XOPEN #ifdef _DIRENT_HAVE_D_NAMLEN # ifdef _DIRENT_HAVE_D_RECLEN #ifdef __USE_MISC #ifdef __USE_XOPEN2K8
+#ifdef __O_TMPFILE #ifdef __USE_XOPEN2K8 # ifdef __S_IFIFO # ifdef __S_IFLNK #ifdef __USE_MISC
+#ifdef __USE_XOPEN_EXTENDED #ifdef __USE_XOPEN_EXTENDED # ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_LARGEFILE64
+#ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_LARGEFILE64
+#ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_GNU #ifdef __USE_GNU
+#ifdef __USE_ISOC99 #ifdef __USE_ISOC99 #ifdef __USE_ISOC99 #ifdef __USE_ISOC99 #ifdef __USE_ISOC99
+#ifdef __USE_MISC #ifdef __USE_GNU #ifdef __USE_MISC #ifdef __USE_GNU #ifdef __USE_MISC
+#ifdef __USE_GNU #ifdef __USE_XOPEN2K # ifdef __USE_GNU # ifdef __USE_GNU # ifdef __USE_GNU
+#ifdef __cplusplus #ifdef __USE_GNU #ifdef __USE_GNU # ifdef RE_DUP_MAX # ifdef __USE_GNU
+#ifdef __USE_XOPEN #ifdef __USE_POSIX199309 #ifdef __USE_MISC #ifdef __USE_POSIX199309 #ifdef __USE_GNU
+# ifdef __GNUC__ #ifdef __USE_XOPEN2K8 #ifdef __USE_LARGEFILE64 #ifdef __USE_GNU #ifdef __USE_ATFILE
+# ifdef __WIFCONTINUED #ifdef __USE_ISOC99 #ifdef __USE_ISOC99 #ifdef __USE_MISC #ifdef __USE_ISOC99
+#ifdef __CORRECT_ISO_CPP_STRING_H_PROTO # ifdef __OPTIMIZE__ #ifdef __USE_GNU # ifdef __CORRECT_ISO_CPP_STRING_H_PROTO # ifdef __CORRECT_ISO_CPP_STRING_H_PROTO
+#ifdef __USE_POSIX199309 #ifdef __USE_XOPEN2K #ifdef __USE_XOPEN2K8 #ifdef __USE_ISOC11 #ifdef __USE_XOPEN
+#ifdef __USE_XOPEN2K8 /bin /boot /cdrom /dev /etc /home /initrd.img /initrd.img.old /lib /lib32 /lib64 /libx32 /lost+found /media /mnt /opt /proc /root /run /sbin /snap /srv /swapfile /sys /tmp /usr /var /vmlinuz /vmlinuz.old These are not #ifdef __USE_POSIX2 because they are #ifdef __USE_XOPEN2K8 #ifdef __USE_XOPEN2K8 #ifdef __USE_GNU
+#ifdef __USE_XOPEN2K8 #ifdef __USE_XOPEN2K8 #ifdef __USE_XOPEN2K8 #ifdef __CORRECT_ISO_CPP_WCHAR_H_PROTO #ifdef __CORRECT_ISO_CPP_WCHAR_H_PROTO
