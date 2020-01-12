@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h> 
+#include "mythreads.h"
 
 int passaggioTestimone = 0;
 int indiceAtletaAttuale = 0;
@@ -13,7 +14,7 @@ pthread_cond_t urlo = PTHREAD_COND_INITIALIZER;
 void* staffettista(void* arg){
 	int indiceAtleta; indiceAtleta = * (int*) arg;
 	while(1){
-		pthread_mutex_lock(&mutex);
+		Pthread_mutex_lock(&mutex);
 		while(indiceAtletaAttuale != indiceAtleta){
 			pthread_cond_wait(&passaggio, &mutex);
 		}
